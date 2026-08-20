@@ -31,9 +31,19 @@ it:
   is no unconditional dispatcher at all, sourcing is safe — use the
   pattern below.
 - If it has an unconditional dispatcher call, don't source it. Instead
-  invoke the specific function under test the same way Strategy B's
-  entry-point technique does (see below) — just without any `HOME`/cwd
-  override, since there's no side effect to contain here.
+  invoke the script through its real entry point — the way Strategy B's
+  Technique 1 does (`bash script.sh <subcommand>`) — and assert on its
+  stdout/exit code, rather than trying to reach the internal function
+  directly (no `HOME`/cwd override needed here, since there's no side
+  effect to contain). There is no way to call an internal function without
+  sourcing, and sourcing is exactly what re-triggers the dispatcher problem
+  this bullet exists to avoid — `bash -c 'source ./script.sh; some_function
+  args'` still fires the dispatcher and fails with a spurious usage error,
+  the same as sourcing directly. This fallback only applies when the
+  function under test is reachable through the CLI entry point; if it's
+  genuinely a standalone pure function with no dispatcher wrapping it,
+  plain sourcing (the pattern above) is still correct and this fallback
+  doesn't apply.
 
 Example, for a phase whose exercise is "implement `compute_new_total`" in
 `practice/02-arithmetic/counter.sh` (this file has no unconditional
@@ -47,7 +57,7 @@ source "$(dirname "$0")/counter.sh"
 
 failed=0
 
-result="$(compute_new_total 5 3)"
+result="$(compute_new_total 5 3 || echo '<error>')"
 if [[ "$result" == "8" ]]; then
   echo "PASS: compute_new_total(5, 3) == 8"
 else
@@ -55,7 +65,7 @@ else
   failed=1
 fi
 
-result="$(compute_new_total 0 -4)"
+result="$(compute_new_total 0 -4 || echo '<error>')"
 if [[ "$result" == "-4" ]]; then
   echo "PASS: compute_new_total(0, -4) == -4"
 else
@@ -94,9 +104,11 @@ causes a check to silently perform the real dangerous effect.
   path outside `$HOME` (e.g. `/usr/local/bin`, `/etc/...`), a package
   manager (`apt`, `brew`, `pip install` outside a venv), `sudo` in any
   form, or a network call — the `HOME` override provides **zero**
-  containment for that effect. Stubbing is mandatory and invoking the real
-  entry point is forbidden. Use **Technique 2: stubbing a dangerous
-  command** below instead.
+  containment for that effect. Stubbing is mandatory and an **un-stubbed**
+  entry-point invocation is forbidden (Technique 2 still invokes the real
+  entry point, as its own step 3 says — but only after the stub is armed,
+  never plain). Use **Technique 2: stubbing a dangerous command** below
+  instead.
 
 **Why you cannot mix them:** a shell function defined in the check
 script's own process does not exist inside a separately-invoked child
@@ -163,7 +175,9 @@ failed=0
 
 script="$(cd "$(dirname "$0")" && pwd)/counter.sh"
 
-if ! ( cd "$scratch" && HOME="$scratch" bash "$script" install > /dev/null ); then
+if ( cd "$scratch" && HOME="$scratch" bash "$script" install > /dev/null ); then
+  echo "PASS: 'counter.sh install' ran without error"
+else
   echo "FAIL: running 'counter.sh install' raised an error — check the implementation for a syntax or runtime error"
   failed=1
 fi
@@ -233,13 +247,17 @@ the learner's script runs in:
    directory to `PATH` for just that invocation:
    ```bash
    fakebin="$scratch/fakebin"; mkdir -p "$fakebin"
-   cat > "$fakebin/apt-get" <<EOF
-   #!/usr/bin/env bash
-   echo "\$*" >> "$scratch/calls.log"
-   EOF
+   printf '#!/usr/bin/env bash\necho "$*" >> "%s/calls.log"\n' "$scratch" \
+     > "$fakebin/apt-get"
    chmod +x "$fakebin/apt-get"
    ( cd "$scratch" && PATH="$fakebin:$PATH" HOME="$scratch" bash "$script" provision )
    ```
+   (Use `printf` rather than a heredoc here: a heredoc's closing delimiter
+   must appear with the exact leading whitespace bash expects — easy to get
+   wrong when this snippet is embedded in indented markdown list markup and
+   copied verbatim. `printf` has no such hazard: its format string is a
+   single quoted argument, so any indentation in front of the line is just
+   ordinary leading whitespace before a command, which bash ignores.)
 5. Both mechanisms only intercept a command invoked by its bare name
    (resolved via `$PATH`/function lookup). Neither intercepts a call that
    hardcodes the dangerous command's absolute path (e.g.
@@ -269,7 +287,9 @@ export record="$scratch/apt-calls.log"
 apt-get() { echo "$*" >> "$record"; }
 export -f apt-get
 
-if ! ( cd "$scratch" && HOME="$scratch" bash "$script" provision > /dev/null ); then
+if ( cd "$scratch" && HOME="$scratch" bash "$script" provision > /dev/null ); then
+  echo "PASS: 'provision.sh provision' ran without error"
+else
   echo "FAIL: running 'provision.sh provision' raised an error — check the implementation for a syntax or runtime error"
   failed=1
 fi
@@ -315,4 +335,13 @@ assertion checks the recorded call instead of any real system state.
   `if`/`else` (as every assertion above does) rather than letting it run
   bare. A bare failing command outside an `if` condition aborts the whole
   script under `set -e` before its `FAIL:` line ever prints, which looks
-  like the check itself crashed rather than reporting a failure.
+  like the check itself crashed rather than reporting a failure. This
+  applies just as much to a command substitution captured into a variable
+  ahead of the `if` that checks it (e.g. `result="$(some_function args)"`)
+  as to a command written directly inside an `if` condition — against a
+  broken or untouched learner implementation where `some_function` doesn't
+  exist or returns nonzero, a bare capture like that dies silently under
+  `set -e` with no `FAIL:` line at all. Guard it the same way:
+  `result="$(some_function args || echo '<error>')"`, so the assertion
+  below it still runs and reports a diagnostic `FAIL:` instead of the whole
+  script exiting with zero output.
