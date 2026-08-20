@@ -1,6 +1,6 @@
 # Check Generation
 
-Every phase's dispatch (Task 4's prompt) also produces
+Every phase's dispatch (the dispatch prompt, `reference/dispatch-prompt-template.md`) also produces
 `practice/NN-<phase-slug>/check.sh`. Which of the two strategies below
 applies is decided entirely by that phase's `**Side effects:**` line from
 the outline — never by re-judging it during generation.
@@ -34,16 +34,26 @@ it:
   invoke the script through its real entry point — the way Strategy B's
   Technique 1 does (`bash script.sh <subcommand>`) — and assert on its
   stdout/exit code, rather than trying to reach the internal function
-  directly (no `HOME`/cwd override needed here, since there's no side
-  effect to contain). There is no way to call an internal function without
-  sourcing, and sourcing is exactly what re-triggers the dispatcher problem
-  this bullet exists to avoid — `bash -c 'source ./script.sh; some_function
-  args'` still fires the dispatcher and fails with a spurious usage error,
-  the same as sourcing directly. This fallback only applies when the
-  function under test is reachable through the CLI entry point; if it's
-  genuinely a standalone pure function with no dispatcher wrapping it,
-  plain sourcing (the pattern above) is still correct and this fallback
-  doesn't apply.
+  directly. If this phase's code writes any file at all — even a
+  project-local write that's `**Side effects:** none` per
+  `outline-format.md` (that field only means the write stays inside the
+  project workspace, not that there's no write) — run the invocation with
+  its cwd set to a scratch directory, same as Strategy B's cwd override in
+  Technique 1 step 4, rather than letting it default to
+  `practice/NN-<slug>/`; see "Never delete or overwrite anything in the
+  learner's `practice/` directory" under "Both strategies" below, which
+  applies here too, not just to Strategy B. Only skip the scratch cwd if
+  the entry point performs no writes at all (pure stdout/exit-code
+  behavior). A `HOME` override is not needed for Strategy A — that's a
+  Strategy-B-only concern for effects that resolve through `$HOME`/`~`.
+  There is no way to call an internal function without sourcing, and
+  sourcing is exactly what re-triggers the dispatcher problem this bullet
+  exists to avoid — `bash -c 'source ./script.sh; some_function args'`
+  still fires the dispatcher and fails with a spurious usage error, the
+  same as sourcing directly. This fallback only applies when the function
+  under test is reachable through the CLI entry point; if it's genuinely a
+  standalone pure function with no dispatcher wrapping it, plain sourcing
+  (the pattern above) is still correct and this fallback doesn't apply.
 
 Example, for a phase whose exercise is "implement `compute_new_total`" in
 `practice/02-arithmetic/counter.sh` (this file has no unconditional
@@ -87,7 +97,7 @@ Never let the dangerous effect actually happen when the check runs. Which
 technique achieves that depends on where the effect lands. Read this whole
 section before writing a Strategy B check — the two techniques below apply
 to *different* situations; they are not interchangeable, and combining
-them incorrectly (see the warning at the end of this subsection) is what
+them incorrectly (see "Why you cannot mix them" just below) is what
 causes a check to silently perform the real dangerous effect.
 
 **First, decide: is every effect this code performs confined to
@@ -268,6 +278,37 @@ the learner's script runs in:
    shouldn't invoke the effect directly, and isolate the pure decision
    logic (step 1) as the thing under test instead.
 
+   **`sudo X` is a third escape hatch, and the dangerous one to miss.**
+   `export -f` does not help here: `sudo` execs the real target binary
+   directly rather than going through a login/interactive shell that would
+   consult exported bash functions, so a stubbed `apt-get() { ... }`
+   exported into the environment is never consulted for a `sudo apt-get
+   ...` call — the real `apt-get` runs, for real, under root. A `PATH`
+   prepend aimed at the *inner* command (`apt-get`) is also unreliable:
+   `sudo` on many systems resolves commands through its own configured
+   `secure_path`, ignoring the caller's `PATH` for the command it execs.
+   Do not stub the inner command and assume a `sudo`-wrapped call is
+   contained.
+
+   What does work: stub `sudo` itself, not the command after it. The name
+   `sudo` is resolved through the *calling* shell's `$PATH` before `sudo`
+   ever gets to apply its own `secure_path` to anything, so a fake `sudo`
+   script placed on a prepended `PATH` (the same prepend mechanism as step
+   4, just naming the fake executable `sudo` instead of `apt-get`) does
+   intercept it — verified: a fake `sudo` on a prepended `PATH`, invoked as
+   `sudo apt-get install -y jq`, logged `apt-get install -y jq` and exited
+   0 without ever calling the real `apt-get`; separately, an `export -f
+   apt-get` stub was confirmed to NOT be consulted when the same command
+   was invoked as `sudo apt-get ...` — the real `sudo` ran and the stub's
+   log stayed empty. If you're uneasy relying on a fake `sudo` (e.g. the
+   phase's code branches on `sudo`'s own exit code or output in ways a
+   thin fake might not replicate faithfully), the more conservative
+   fallback is to not invoke the entry point through `sudo` at all: fall
+   back to the pure-decision-logic extraction this section's step 1
+   already describes — test what the implementation *would* do (which
+   package, which flags) directly, rather than attempting to invoke a
+   `sudo`-wrapped entry point at all.
+
 Example, for a phase whose exercise is "implement `do_provision`" (wired
 into the `provision` subcommand) in `practice/05-provision/provision.sh`,
 where `do_provision` shells out to `apt-get install` — not a `$HOME`-
@@ -323,12 +364,15 @@ assertion checks the recorded call instead of any real system state.
   un-stubbed call to the learner's code anywhere in a Strategy B check.
 - Never delete or overwrite anything in the learner's `practice/`
   directory itself — checks read the learner's file, they don't rewrite
-  it. For Strategy B this also means the invocation's working directory
-  must not be `practice/NN-.../` itself: a relative-path write the
-  learner's code makes (or builds from `pwd`) lands wherever the process's
-  cwd is, and `HOME` alone does not change that — always run the
-  invocation with cwd inside the scratch directory too (see Technique 1,
-  step 4).
+  it. This applies regardless of strategy: whenever the code under test
+  writes anything, the invocation's working directory must not be
+  `practice/NN-.../` itself — a relative-path write the code makes (or
+  builds from `pwd`) lands wherever the process's cwd is. Always run the
+  invocation with cwd inside a scratch directory (see Technique 1, step 4,
+  and Strategy A's entry-point fallback above). `HOME` alone does not
+  change cwd and is not a substitute for this — and the `HOME` override
+  itself is Strategy-B-only; a Strategy A phase never needs it, only the
+  cwd redirect when it writes anything.
 - Checks run under `set -euo pipefail`. Guard any command whose natural
   nonzero exit doesn't mean "the assertion failed" — e.g. `grep` on a
   pattern that isn't found, or a file that doesn't exist — inside an

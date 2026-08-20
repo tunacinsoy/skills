@@ -45,10 +45,8 @@ Carry the answer through both phases below.
    get operator approval before Phase 2. See "Phase 1" below.
 2. **Phase 2 — Lesson Generation.** One fresh subagent per approved phase,
    dispatched per `superpowers:dispatching-parallel-agents`, each writing
-   whatever `reference/dispatch-prompt-template.md` currently asks for
-   (today: a lesson + practice stub; that template is the source of truth
-   for the exact deliverable list, including whether a check script is
-   part of it). See "Phase 2" below.
+   one lesson, one practice stub directory, and that phase's behavioral
+   `check.sh`. See "Phase 2" below.
 
 ## Phase 1: Analysis & Outline
 
@@ -110,3 +108,4 @@ Lesson and practice-directory numbering matches the outline's phase order.
 - `reference/outline-format.md` — the Phase 1 output contract
 - `reference/lesson-template.md` — the 4-part structure every lesson follows
 - `reference/dispatch-prompt-template.md` — the Phase 2 subagent dispatch prompt
+- `reference/check-generation.md` — the two behavioral check strategies and the safety rules for side-effecting phases

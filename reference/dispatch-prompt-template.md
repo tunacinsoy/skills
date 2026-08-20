@@ -31,13 +31,11 @@ Write:
    starter scaffolding the exercise in your lesson refers to (e.g. an
    empty file with the right name and a comment saying what goes here —
    not a partial implementation).
-
-Also read
-/home/tuna/.claude/skills/teach-from-scratch/reference/check-generation.md
-and write `practice/{NN}-{phase_slug}/check.sh` following whichever
-strategy matches this phase's **Side effects:** line above (`none` →
-Strategy A, anything else → Strategy B). Make it executable
-(`chmod +x`).
+3. `practice/{NN}-{phase_slug}/check.sh` — read
+   /home/tuna/.claude/skills/teach-from-scratch/reference/check-generation.md
+   first, then write this following whichever strategy matches this
+   phase's **Side effects:** line above (`none` → Strategy A, anything
+   else → Strategy B). Make it executable (`chmod +x`).
 
 Report back the paths you wrote and a one-paragraph summary of what the
 lesson teaches.
