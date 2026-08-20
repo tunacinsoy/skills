@@ -35,7 +35,7 @@ Write:
 Also read
 /home/tuna/.claude/skills/teach-from-scratch/reference/check-generation.md
 and write `practice/{NN}-{phase_slug}/check.sh` following whichever
-strategy matches this phase's **Side effects** line above (`none` →
+strategy matches this phase's **Side effects:** line above (`none` →
 Strategy A, anything else → Strategy B). Make it executable
 (`chmod +x`).
 
