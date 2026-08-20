@@ -72,8 +72,11 @@ and wait for approval before touching Phase 2.
 Only after the operator has approved `docs/curriculum/OUTLINE.md`: for each
 phase in the outline, dispatch one fresh subagent using
 `reference/dispatch-prompt-template.md`, filling in that phase's fields
-from the outline. Dispatch phases in parallel where the harness supports it — phases don't
-depend on each other's generation, only on the shared outline.
+from the outline and `{skill_dir}` with the directory this `SKILL.md`
+lives in (so the dispatched subagent can find `reference/lesson-template.md`
+and `reference/check-generation.md` regardless of where this skill is
+installed). Dispatch phases in parallel where the harness supports it —
+phases don't depend on each other's generation, only on the shared outline.
 
 After all lessons are generated, write `docs/curriculum/00-index.md`: a
 short preamble explaining the mechanic (open-book lesson → closed-book

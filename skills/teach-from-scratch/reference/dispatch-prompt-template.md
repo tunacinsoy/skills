@@ -5,11 +5,14 @@ harness supports it. Each dispatch is a **fresh** subagent (not a fork) —
 it must not see the other phases' content, so that its lesson stays
 focused and doesn't shrink in quality for later phases.
 
-Fill in the placeholders and dispatch with `subagent_type: general-purpose`:
+Fill in the placeholders and dispatch with `subagent_type: general-purpose`.
+`{skill_dir}` is the directory containing this skill's `SKILL.md` — the
+same directory this file lives in — resolve it to its actual path on this
+machine before dispatching; every other placeholder comes from the outline
+or the operator's answers.
 
 ```
-Read /home/tuna/.claude/skills/teach-from-scratch/reference/lesson-template.md
-before writing anything.
+Read {skill_dir}/reference/lesson-template.md before writing anything.
 
 You are writing lesson {phase_number} of a curriculum that teaches a
 developer to rebuild the project at {target_repo_path} from scratch.
@@ -32,10 +35,10 @@ Write:
    empty file with the right name and a comment saying what goes here —
    not a partial implementation).
 3. `practice/{NN}-{phase_slug}/check.sh` — read
-   /home/tuna/.claude/skills/teach-from-scratch/reference/check-generation.md
-   first, then write this following whichever strategy matches this
-   phase's **Side effects:** line above (`none` → Strategy A, anything
-   else → Strategy B). Make it executable (`chmod +x`).
+   {skill_dir}/reference/check-generation.md first, then write this
+   following whichever strategy matches this phase's **Side effects:**
+   line above (`none` → Strategy A, anything else → Strategy B). Make it
+   executable (`chmod +x`).
 
 Report back the paths you wrote and a one-paragraph summary of what the
 lesson teaches.
