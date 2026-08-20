@@ -1,9 +1,9 @@
 # Dispatch Prompt Template
 
-Used once per approved outline phase, per
-`superpowers:dispatching-parallel-agents`. Each dispatch is a **fresh**
-subagent (not a fork) — it must not see the other phases' content, so that
-its lesson stays focused and doesn't shrink in quality for later phases.
+Used once per approved outline phase, dispatched in parallel where the
+harness supports it. Each dispatch is a **fresh** subagent (not a fork) —
+it must not see the other phases' content, so that its lesson stays
+focused and doesn't shrink in quality for later phases.
 
 Fill in the placeholders and dispatch with `subagent_type: general-purpose`:
 

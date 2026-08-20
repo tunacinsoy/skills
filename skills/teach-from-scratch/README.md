@@ -96,9 +96,8 @@ in the project.
 
 - [Claude Code](https://claude.com/claude-code) (or another agent runtime that reads
   `~/.claude/skills/`).
-- No other dependencies. Lesson generation dispatches subagents in parallel when the
-  [`superpowers`](https://github.com/obra/superpowers) plugin's `dispatching-parallel-agents`
-  pattern is available, and falls back to sequential dispatch otherwise — either way works.
+- No other dependencies. Lesson generation dispatches subagents in parallel where the
+  harness supports it, and falls back to sequential dispatch otherwise — either way works.
 
 ## Directory layout
 
@@ -110,7 +109,6 @@ reference/
   dispatch-prompt-template.md         # the Phase 2 subagent dispatch prompt
   check-generation.md                 # behavioral check rules, including the safety design
 tests/fixtures/build-toy-counter.sh   # a small toy project used to exercise the skill end-to-end
-docs/superpowers/                     # the design spec and implementation plan this was built from
 ```
 
 ## Status

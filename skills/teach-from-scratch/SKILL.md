@@ -44,7 +44,7 @@ Carry the answer through both phases below.
    repo's structure and git history. Produces an outline artifact. Stop and
    get operator approval before Phase 2. See "Phase 1" below.
 2. **Phase 2 — Lesson Generation.** One fresh subagent per approved phase,
-   dispatched per `superpowers:dispatching-parallel-agents`, each writing
+   dispatched in parallel where the harness supports it, each writing
    one lesson, one practice stub directory, and that phase's behavioral
    `check.sh`. See "Phase 2" below.
 
@@ -72,9 +72,8 @@ and wait for approval before touching Phase 2.
 Only after the operator has approved `docs/curriculum/OUTLINE.md`: for each
 phase in the outline, dispatch one fresh subagent using
 `reference/dispatch-prompt-template.md`, filling in that phase's fields
-from the outline. Dispatch phases in parallel where the harness supports it
-(`superpowers:dispatching-parallel-agents`) — phases don't depend on each
-other's generation, only on the shared outline.
+from the outline. Dispatch phases in parallel where the harness supports it — phases don't
+depend on each other's generation, only on the shared outline.
 
 After all lessons are generated, write `docs/curriculum/00-index.md`: a
 short preamble explaining the mechanic (open-book lesson → closed-book
