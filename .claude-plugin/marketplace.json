@@ -1,0 +1,21 @@
+{
+  "name": "tunacinsoy",
+  "owner": {
+    "name": "Tuna Cinsoy"
+  },
+  "description": "Tuna Cinsoy's personal Claude Code skills, as an installable plugin.",
+  "plugins": [
+    {
+      "name": "tunacinsoy-skills",
+      "source": "./",
+      "description": "Personal agent skills for real engineering.",
+      "category": "engineering",
+      "keywords": [
+        "engineering",
+        "skills",
+        "teaching",
+        "curriculum"
+      ]
+    }
+  ]
+}

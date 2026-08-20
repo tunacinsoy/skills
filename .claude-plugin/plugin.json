@@ -1,0 +1,20 @@
+{
+  "name": "tunacinsoy-skills",
+  "version": "0.1.0",
+  "description": "Tuna Cinsoy's personal agent skills for real engineering.",
+  "author": {
+    "name": "Tuna Cinsoy"
+  },
+  "homepage": "https://github.com/tunacinsoy/skills",
+  "repository": "https://github.com/tunacinsoy/skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "engineering",
+    "teaching",
+    "curriculum"
+  ],
+  "skills": [
+    "./skills/teach-from-scratch"
+  ]
+}

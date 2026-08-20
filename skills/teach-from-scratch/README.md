@@ -53,14 +53,9 @@ multiple rounds of adversarial review with live execution proof before being tru
 
 ## Installation
 
-Clone this repo somewhere on disk, then symlink it into Claude Code's skills directory:
-
-```bash
-git clone https://github.com/tunacinsoy/teach-from-scratch.git ~/skills/teach-from-scratch
-ln -s ~/skills/teach-from-scratch ~/.claude/skills/teach-from-scratch
-```
-
-Claude Code picks up personal skills from `~/.claude/skills/` automatically.
+This skill lives in [tunacinsoy/skills](https://github.com/tunacinsoy/skills) — see that
+repo's README for how to install it (as a Claude Code plugin, or by symlinking this
+directory directly into `~/.claude/skills/`).
 
 ## Usage
 
@@ -105,7 +100,7 @@ in the project.
   [`superpowers`](https://github.com/obra/superpowers) plugin's `dispatching-parallel-agents`
   pattern is available, and falls back to sequential dispatch otherwise — either way works.
 
-## Repository layout
+## Directory layout
 
 ```
 SKILL.md                              # the skill itself — entry point Claude Code reads
