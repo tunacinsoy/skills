@@ -47,8 +47,25 @@ Carry the answer through both phases below.
    dispatched per `superpowers:dispatching-parallel-agents`, each writing
    one lesson + practice stub + check script. See "Phase 2" below.
 
-<!-- Phase 1 and Phase 2 sections are added by later tasks. -->
+## Phase 1: Analysis & Outline
+
+Read, in this order:
+1. The target repo's file tree and top-level structure.
+2. `git log --oneline --stat` (or equivalent) to find clusters of
+   consecutive commits touching the same area — these become phase
+   candidates. Read full commit bodies only within a cluster you're
+   already investigating.
+3. Existing tests/docs, if present, for extra grounding.
+
+If the history is too thin, squashed, or missing to derive real phases,
+fall back to deriving phases from the final codebase's structure and
+internal dependency order alone, and say so in the outline's
+`**Derived from**` line.
+
+Write the outline following `reference/outline-format.md` exactly, save it
+to `docs/curriculum/OUTLINE.md`, and **stop** — present it to the operator
+and wait for approval before touching Phase 2.
 
 ## Reference
 
-<!-- Links to reference/*.md are added by later tasks. -->
+- `reference/outline-format.md` — the Phase 1 output contract
