@@ -32,6 +32,13 @@ Write:
    empty file with the right name and a comment saying what goes here —
    not a partial implementation).
 
-Do not write a check script yet — that's a separate step. Report back the
-paths you wrote and a one-paragraph summary of what the lesson teaches.
+Also read
+/home/tuna/.claude/skills/teach-from-scratch/reference/check-generation.md
+and write `practice/{NN}-{phase_slug}/check.sh` following whichever
+strategy matches this phase's **Side effects** line above (`none` →
+Strategy A, anything else → Strategy B). Make it executable
+(`chmod +x`).
+
+Report back the paths you wrote and a one-paragraph summary of what the
+lesson teaches.
 ```
