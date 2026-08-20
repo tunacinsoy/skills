@@ -66,6 +66,22 @@ Write the outline following `reference/outline-format.md` exactly, save it
 to `docs/curriculum/OUTLINE.md`, and **stop** — present it to the operator
 and wait for approval before touching Phase 2.
 
+## Phase 2: Lesson Generation
+
+Only after the operator has approved `docs/curriculum/OUTLINE.md`: for each
+phase in the outline, dispatch one fresh subagent using
+`reference/dispatch-prompt-template.md`, filling in that phase's fields
+from the outline. Dispatch phases in parallel where the harness supports it
+(`superpowers:dispatching-parallel-agents`) — phases don't depend on each
+other's generation, only on the shared outline.
+
+After all lessons are generated, write `docs/curriculum/00-index.md`: a
+short preamble explaining the mechanic (open-book lesson → closed-book
+exercise → behavioral check → diff available afterward as a study aid
+only) plus a linear list linking every lesson in order.
+
 ## Reference
 
 - `reference/outline-format.md` — the Phase 1 output contract
+- `reference/lesson-template.md` — the 4-part structure every lesson follows
+- `reference/dispatch-prompt-template.md` — the Phase 2 subagent dispatch prompt
