@@ -83,6 +83,28 @@ short preamble explaining the mechanic (open-book lesson → closed-book
 exercise → behavioral check → diff available afterward as a study aid
 only) plus a linear list linking every lesson in order.
 
+## Output Layout
+
+Inside the target project's repo:
+
+```
+docs/curriculum/
+  OUTLINE.md          # Phase 1 artifact, kept after Phase 2 for reference
+  00-index.md
+  01-<phase-slug>.md
+  02-<phase-slug>.md
+  ...
+practice/
+  01-<phase-slug>/
+    check.sh
+    ... (learner stub files)
+  02-<phase-slug>/
+    check.sh
+    ...
+```
+
+Lesson and practice-directory numbering matches the outline's phase order.
+
 ## Reference
 
 - `reference/outline-format.md` — the Phase 1 output contract
