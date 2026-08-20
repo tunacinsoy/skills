@@ -45,7 +45,10 @@ Carry the answer through both phases below.
    get operator approval before Phase 2. See "Phase 1" below.
 2. **Phase 2 — Lesson Generation.** One fresh subagent per approved phase,
    dispatched per `superpowers:dispatching-parallel-agents`, each writing
-   one lesson + practice stub + check script. See "Phase 2" below.
+   whatever `reference/dispatch-prompt-template.md` currently asks for
+   (today: a lesson + practice stub; that template is the source of truth
+   for the exact deliverable list, including whether a check script is
+   part of it). See "Phase 2" below.
 
 ## Phase 1: Analysis & Outline
 
